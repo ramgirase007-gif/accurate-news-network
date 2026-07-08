@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function LoadingSkeleton({ count = 3, variant = 'card', className = '' }) {
   return (

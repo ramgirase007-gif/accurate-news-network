@@ -1,4 +1,3 @@
-import React from 'react';
 
 const variantSizes = {
   inline: '728 × 90',

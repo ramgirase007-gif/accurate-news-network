@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { LoadingSkeleton, Sidebar } from '../components';

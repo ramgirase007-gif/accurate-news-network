@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 
 const defaultNewsItems = [
   {
@@ -50,11 +50,7 @@ export default function BreakingNewsTicker({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  useEffect(() => {
-    if (activeIndex > normalizedNews.length - 1) {
-      setActiveIndex(0);
-    }
-  }, [activeIndex, normalizedNews.length]);
+  const safeActiveIndex = normalizedNews.length ? activeIndex % normalizedNews.length : 0;
 
   const goToPrevious = () => {
     setActiveIndex((currentIndex) =>
@@ -74,10 +70,10 @@ export default function BreakingNewsTicker({
     }
 
     return [
-      ...normalizedNews.slice(activeIndex),
-      ...normalizedNews.slice(0, activeIndex),
+      ...normalizedNews.slice(safeActiveIndex),
+      ...normalizedNews.slice(0, safeActiveIndex),
     ];
-  }, [activeIndex, normalizedNews]);
+  }, [safeActiveIndex, normalizedNews]);
   const tickerItems = orderedNews.length > 1 ? [...orderedNews, ...orderedNews] : orderedNews;
   const hasMultipleItems = normalizedNews.length > 1;
 
