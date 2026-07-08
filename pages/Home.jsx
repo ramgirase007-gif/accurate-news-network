@@ -4,9 +4,11 @@ import {
   BreakingNewsTicker,
   CategorySection,
   HeroBanner,
+  LoadingSkeleton,
   Sidebar,
   TopStories,
 } from '../components';
+import { useLatestWordPressPosts } from '../hooks';
 
 const breakingNews = [
   {
@@ -39,6 +41,9 @@ const categorySections = [
 ];
 
 export default function Home() {
+  const { data: latestPosts, error: wordpressError, loading: wordpressLoading, isConfigured } = useLatestWordPressPosts({ per_page: 12 });
+  const topStories = latestPosts.slice(0, 6);
+
   return (
     <div className="ann-home">
       <BreakingNewsTicker news={breakingNews} />
@@ -47,16 +52,26 @@ export default function Home() {
         <HeroBanner />
 
         <section id="top-stories" aria-label="Top stories">
-          <TopStories />
+          {wordpressLoading ? (
+            <LoadingSkeleton count={6} variant="grid" />
+          ) : (
+            <TopStories stories={topStories} description={wordpressError ? 'Showing curated newsroom stories while WordPress content is unavailable.' : undefined} />
+          )}
         </section>
 
         <div className="ann-home__category-sections" aria-label="News categories">
           {categorySections.map((category) => (
             <div id={category.id} key={category.id} className="ann-home__category-anchor">
-              <CategorySection categoryName={category.name} viewAllHref={category.viewAllHref} />
+              <CategorySection
+                categoryName={category.name}
+                articles={latestPosts.filter((post) => post.category.toLowerCase() === category.name.toLowerCase()).slice(0, 5)}
+                viewAllHref={category.viewAllHref}
+              />
             </div>
           ))}
         </div>
+
+        {isConfigured ? null : <p className="ann-home__wp-note" role="status">Connect VITE_WORDPRESS_API_URL to publish live WordPress stories.</p>}
 
         <section className="ann-home__sidebar-section" aria-label="Latest updates and reader tools">
           <div className="ann-home__sidebar-inner">
@@ -97,6 +112,8 @@ const styles = `
     background: rgba(248, 250, 252, 0.92);
   }
 
+  .ann-home__wp-note { color: #64748b; font-weight: 800; margin: 0 auto; max-width: 1180px; padding: 0 1rem; }
+
   .ann-home__sidebar-section {
     margin: 0 auto;
     max-width: 1180px;
@@ -113,7 +130,9 @@ const styles = `
   }
 
   @media (max-width: 768px) {
-    .ann-home__sidebar-section {
+    .ann-home__wp-note { color: #64748b; font-weight: 800; margin: 0 auto; max-width: 1180px; padding: 0 1rem; }
+
+  .ann-home__sidebar-section {
       padding-inline: 0.75rem;
     }
 

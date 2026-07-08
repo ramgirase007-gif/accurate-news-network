@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 
-import { Sidebar } from '../components';
+import { LoadingSkeleton, Sidebar } from '../components';
+import { useLatestWordPressPosts, useWordPressCategories } from '../hooks';
 import PageFrame from './PageFrame';
 import { getArticlesByCategory, newsArticles } from './newsData';
 import { formatTitle } from './pageUtils';
@@ -15,13 +16,21 @@ export default function CategoryPage() {
   const [searchParams] = useSearchParams();
   const currentPage = Math.max(1, Number(searchParams.get('page')) || 1);
   const categoryName = formatTitle(slug) || 'News';
-  const categoryArticles = useMemo(() => {
+  const { data: wordpressCategories } = useWordPressCategories();
+  const wordpressCategory = wordpressCategories.find((category) => category.slug === slug);
+  const { data: wordpressArticles, error: wordpressError, loading: wordpressLoading } = useLatestWordPressPosts({
+    page: currentPage,
+    per_page: PAGE_SIZE,
+    ...(wordpressCategory?.id ? { categories: wordpressCategory.id } : {}),
+  });
+  const fallbackArticles = useMemo(() => {
     const matches = getArticlesByCategory(categoryName);
     return matches.length > 0 ? matches : newsArticles;
   }, [categoryName]);
+  const categoryArticles = wordpressArticles.length > 0 ? wordpressArticles : fallbackArticles;
   const totalPages = Math.max(1, Math.ceil(categoryArticles.length / PAGE_SIZE));
   const page = Math.min(currentPage, totalPages);
-  const visibleArticles = categoryArticles.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const visibleArticles = wordpressArticles.length > 0 ? wordpressArticles : categoryArticles.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <PageFrame
@@ -33,8 +42,10 @@ export default function CategoryPage() {
         <section className="ann-category-page__main" aria-labelledby="category-news-title">
           <div className="ann-category-page__header">
             <h2 id="category-news-title">Latest {categoryName} News</h2>
-            <p>{categoryArticles.length} verified stories available.</p>
+            <p>{wordpressError ? 'WordPress unavailable; showing archived coverage.' : `${categoryArticles.length} verified stories available.`}</p>
           </div>
+
+          {wordpressLoading ? <LoadingSkeleton count={PAGE_SIZE} variant="grid" /> : null}
 
           <div className="ann-category-page__grid">
             {visibleArticles.map((article) => (
