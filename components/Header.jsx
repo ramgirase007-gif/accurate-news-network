@@ -3,13 +3,13 @@ import React, { useEffect, useId, useState } from 'react';
 import { useTheme } from '../hooks';
 
 const categories = [
-  { label: 'Top Stories', href: '#top-stories' },
-  { label: 'World', href: '#world' },
-  { label: 'Politics', href: '#politics' },
-  { label: 'Business', href: '#business' },
-  { label: 'Technology', href: '#technology' },
-  { label: 'Health', href: '#health' },
-  { label: 'Sports', href: '#sports' },
+  { label: 'Top Stories', href: '/#top-stories' },
+  { label: 'World', href: '/category/world' },
+  { label: 'Politics', href: '/category/politics' },
+  { label: 'Business', href: '/category/business' },
+  { label: 'Technology', href: '/category/technology' },
+  { label: 'Health', href: '/category/health' },
+  { label: 'Sports', href: '/category/sports' },
 ];
 
 const tickerItems = [

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
-import { Footer, Header } from './components';
+import { ErrorBoundary, Footer, Header } from './components';
 import { ThemeProvider } from './context';
 import {
   AboutPage,
@@ -18,17 +18,19 @@ function AppLayout() {
   return (
     <div className="ann-app">
       <Header />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/category" element={<Navigate to="/category/world" replace />} />
-        <Route path="/category/:slug" element={<CategoryPage />} />
-        <Route path="/news/:slug" element={<ArticlePage />} />
-        <Route path="/search" element={<SearchPage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+      <ErrorBoundary>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/category" element={<Navigate to="/category/world" replace />} />
+          <Route path="/category/:slug" element={<CategoryPage />} />
+          <Route path="/news/:slug" element={<ArticlePage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </ErrorBoundary>
       <Footer />
       <style>{styles}</style>
     </div>
@@ -46,7 +48,8 @@ export default function App() {
 }
 
 const styles = `
-  .ann-app { min-height: 100vh; background: #f8fafc; color: #111827; }
+  .ann-app { min-height: 100vh; background: var(--ann-app-bg, #f8fafc); color: var(--ann-app-text, #111827); }
+  :root[data-ann-theme='dark'] { --ann-app-bg: #020617; --ann-app-text: #f8fafc; }
   .ann-page { min-height: 55vh; padding: clamp(2rem, 5vw, 4.5rem) 1rem; }
   .ann-page__hero, .ann-page__content { width: min(1180px, 100%); margin: 0 auto; }
   .ann-page__hero { border-radius: 1.5rem; background: linear-gradient(135deg, #0f172a, #1e3a8a); color: #fff; padding: clamp(2rem, 5vw, 4rem); box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16); }
