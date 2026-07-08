@@ -1,4 +1,9 @@
 // Central export surface for route-level page components.
-// Export pages from this file as they are added, for example:
-// export { default as HomePage } from './HomePage';
 export { default as Home } from './Home';
+export { default as CategoryPage } from './Category';
+export { default as ArticlePage } from './Article';
+export { default as SearchPage } from './Search';
+export { default as AboutPage } from './About';
+export { default as ContactPage } from './Contact';
+export { default as PrivacyPolicyPage } from './PrivacyPolicy';
+export { default as NotFoundPage } from './NotFound';
