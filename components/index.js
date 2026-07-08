@@ -6,3 +6,4 @@ export { default as Footer } from './Footer';
 export { default as BreakingNewsTicker } from './BreakingNewsTicker';
 export { default as HeroBanner } from './HeroBanner';
 export { default as TopStories } from './TopStories';
+export { default as CategorySection } from './CategorySection';
