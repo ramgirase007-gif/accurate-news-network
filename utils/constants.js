@@ -29,3 +29,9 @@ export const WORDPRESS_ENDPOINTS = Object.freeze({
   tags: '/wp-json/wp/v2/tags',
   media: '/wp-json/wp/v2/media',
 });
+
+export const PRODUCTION_CONFIG = Object.freeze({
+  siteUrl: import.meta.env?.VITE_SITE_URL || 'https://accuratenewsnetwork.com',
+  nodeEnv: import.meta.env?.MODE || 'development',
+  enableAnalytics: import.meta.env?.VITE_ENABLE_ANALYTICS === 'true',
+});

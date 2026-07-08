@@ -135,7 +135,7 @@ export default function TopStories({
           return (
             <article className="ann-top-stories__card" key={story.id}>
               <a className="ann-top-stories__image-link" href={story.href} aria-label={`Read story: ${story.headline}`}>
-                <img className="ann-top-stories__image" src={story.imageUrl} alt={story.imageAlt} loading="lazy" />
+                <img className="ann-top-stories__image" src={story.imageUrl} alt={story.imageAlt} loading="lazy" decoding="async" />
               </a>
 
               <div className="ann-top-stories__content">

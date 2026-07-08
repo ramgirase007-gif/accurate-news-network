@@ -113,6 +113,7 @@ function CategoryArticleCard({ article, variant = 'secondary' }) {
           src={article.imageUrl}
           alt={article.imageAlt}
           loading={isFeatured ? 'eager' : 'lazy'}
+          decoding="async"
         />
       </a>
 

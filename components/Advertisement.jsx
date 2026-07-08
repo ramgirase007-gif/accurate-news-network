@@ -17,7 +17,7 @@ export default function Advertisement({
 }) {
   const normalizedVariant = variantSizes[variant] ? variant : 'inline';
   const content = imageUrl ? (
-    <img className="ann-advertisement__image" src={imageUrl} alt={imageAlt} loading="lazy" />
+    <img className="ann-advertisement__image" src={imageUrl} alt={imageAlt} loading="lazy" decoding="async" />
   ) : (
     <div className="ann-advertisement__placeholder">
       <span className="ann-advertisement__label">{label}</span>
