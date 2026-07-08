@@ -3,33 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 
 import { Sidebar } from '../components';
 import PageFrame from './PageFrame';
-import { formatTitle } from './pageUtils';
-
-const relatedNews = [
-  {
-    id: 'verified-media-labels',
-    headline: 'Technology firms release joint standards for verified media labels',
-    href: '/news/verified-media-labels',
-    category: 'Technology',
-    date: '2026-07-08T08:35:00Z',
-  },
-  {
-    id: 'digital-payments-guidance',
-    headline: 'Small businesses prepare for new digital payments guidance',
-    href: '/news/digital-payments-guidance',
-    category: 'Business',
-    date: '2026-07-08T08:10:00Z',
-  },
-  {
-    id: 'late-night-transit-routes',
-    headline: 'Transit agencies expand late-night routes for major summer events',
-    href: '/news/late-night-transit-routes',
-    category: 'Local',
-    date: '2026-07-08T09:05:00Z',
-  },
-];
-
-const tagLinks = ['Accountability', 'Public policy', 'Community impact', 'Explainer'];
+import { getArticleBySlug, newsArticles } from './newsData';
 
 const formatArticleDate = (value) =>
   new Intl.DateTimeFormat('en-US', {
@@ -39,26 +13,11 @@ const formatArticleDate = (value) =>
   }).format(new Date(value));
 
 export default function ArticlePage() {
-  const { slug = 'developing-story' } = useParams();
-  const headline = formatTitle(slug) || 'Developing Story';
-  const article = useMemo(
-    () => ({
-      headline,
-      dek: 'A verified briefing from the Accurate News Network newsroom with context, source notes, and what readers should watch next.',
-      imageUrl: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1400&q=85',
-      imageAlt: 'Newspapers stacked next to a cup of coffee in a newsroom setting',
-      author: 'Maya Chen',
-      authorTitle: 'Senior National Correspondent',
-      publishDate: '2026-07-08T12:00:00Z',
-      category: 'World',
-      content: [
-        'Accurate News Network is following this developing story with a focus on verified facts, primary-source documents, and clearly labeled context. Editors will update this page as new information is confirmed by the newsroom.',
-        'Officials and community leaders described the latest developments as consequential but still evolving. The newsroom has reviewed available records, requested additional comment from relevant agencies, and compared statements with public data where available.',
-        'The immediate impact for readers depends on location, timing, and any guidance issued by local authorities. ANN recommends checking official alerts, saving important documents, and following updates from trusted local services when a story affects travel, safety, or public services.',
-        'This article page is designed for long-form reporting, including follow-up paragraphs, source acknowledgements, related coverage, and share tools. It can be connected to live article data without changing the accessible reading layout.',
-      ],
-    }),
-    [headline],
+  const { slug = 'climate-resilience-funding' } = useParams();
+  const article = useMemo(() => getArticleBySlug(slug), [slug]);
+  const relatedNews = useMemo(
+    () => newsArticles.filter((story) => story.slug !== article.slug && story.category === article.category).concat(newsArticles.filter((story) => story.slug !== article.slug)).slice(0, 3),
+    [article],
   );
   const formattedDate = formatArticleDate(article.publishDate);
   const shareText = encodeURIComponent(article.headline);
@@ -107,7 +66,7 @@ export default function ArticlePage() {
           <section className="ann-article__tags" aria-labelledby="tags-title">
             <h2 id="tags-title">Tags</h2>
             <ul>
-              {tagLinks.map((tag) => (
+              {article.tags.map((tag) => (
                 <li key={tag}><Link to={`/search?q=${encodeURIComponent(tag)}`}>{tag}</Link></li>
               ))}
             </ul>
@@ -121,8 +80,8 @@ export default function ArticlePage() {
               {relatedNews.map((story) => (
                 <article key={story.id} className="ann-article__related-card">
                   <span>{story.category}</span>
-                  <h3><Link to={story.href}>{story.headline}</Link></h3>
-                  <time dateTime={story.date}>{new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(story.date))}</time>
+                  <h3><Link to={`/news/${story.slug}`}>{story.headline}</Link></h3>
+                  <time dateTime={story.publishDate}>{new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(story.publishDate))}</time>
                 </article>
               ))}
             </div>
