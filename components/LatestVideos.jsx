@@ -22,7 +22,7 @@ export function VideoCard({ video, featured = false }) {
   return (
     <article className={`ann-video-card${featured ? ' ann-video-card--featured' : ''}`}>
       <a className="ann-video-card__media" href={video.href} aria-label={`Watch video: ${video.title}`}>
-        <img src={video.thumbnail} alt="" loading={featured ? 'eager' : 'lazy'} />
+        <img src={video.thumbnail} alt="" loading={featured ? 'eager' : 'lazy'} decoding="async" />
         <span className="ann-video-card__play" aria-hidden="true">▶</span>
         <span className="ann-video-card__duration">{video.duration}</span>
       </a>

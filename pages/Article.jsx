@@ -28,7 +28,7 @@ export default function ArticlePage() {
   const shareUrl = encodeURIComponent(typeof window === 'undefined' ? `/news/${slug}` : window.location.href);
 
   return (
-    <PageFrame eyebrow={article.category} title={article.headline} description={article.dek}>
+    <PageFrame eyebrow={article.category} title={article.headline} description={article.dek} seo={{ path: `/news/${slug}`, image: article.imageUrl, type: 'article', keywords: article.tags }}>
       <nav className="ann-article-breadcrumb" aria-label="Breadcrumb">
         <ol>
           <li><Link to="/">Home</Link></li>
@@ -43,7 +43,7 @@ export default function ArticlePage() {
       <div className="ann-article-layout">
         <article className="ann-article ann-article--feature" aria-labelledby="page-title">
           <figure className="ann-article__figure">
-            <img src={article.imageUrl} alt={article.imageAlt} className="ann-article__image" />
+            <img src={article.imageUrl} alt={article.imageAlt} className="ann-article__image" loading="eager" fetchPriority="high" decoding="async" />
             <figcaption>ANN editors pair every featured image with descriptive alternative text and caption-ready context.</figcaption>
           </figure>
 

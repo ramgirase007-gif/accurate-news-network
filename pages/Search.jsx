@@ -20,6 +20,7 @@ export default function SearchPage() {
       eyebrow="Search"
       title="Search Accurate News Network"
       description="Find verified reporting, topic pages, and newsroom explainers."
+      seo={{ path: query ? `/search?q=${encodeURIComponent(query)}` : '/search', keywords: [query, 'news search', 'ANN'].filter(Boolean) }}
     >
       <form className="ann-search" role="search" action="/search" method="get">
         <label htmlFor="ann-search-query">Search terms</label>
@@ -48,7 +49,7 @@ export default function SearchPage() {
           <div className="ann-search-results__list">
             {results.map((article) => (
               <article className="ann-search-results__item" key={article.id}>
-                <img src={article.imageUrl} alt={article.imageAlt} loading="lazy" />
+                <img src={article.imageUrl} alt={article.imageAlt} loading="lazy" decoding="async" />
                 <div>
                   <span>{article.category}</span>
                   <h3><Link to={`/news/${article.slug}`}>{article.headline}</Link></h3>

@@ -3,7 +3,7 @@ import React from 'react';
 export default function EPaperWidget({ editionTitle = 'Today\'s E-Paper', date = 'July 8, 2026', pages = 24, coverImage, viewHref = '#e-paper', className = '' }) {
   return (
     <section className={`ann-epaper${className ? ` ${className}` : ''}`} aria-label="Latest e-paper edition">
-      <div className="ann-epaper__cover">{coverImage ? <img src={coverImage} alt="Latest e-paper cover" loading="lazy" /> : <span aria-hidden="true">📰</span>}</div>
+      <div className="ann-epaper__cover">{coverImage ? <img src={coverImage} alt="Latest e-paper cover" loading="lazy" decoding="async" /> : <span aria-hidden="true">📰</span>}</div>
       <div className="ann-epaper__content"><p>Latest Edition</p><h2>{editionTitle}</h2><span>{date} · {pages} pages</span><a href={viewHref}>View E-Paper</a></div>
       <style>{styles}</style>
     </section>

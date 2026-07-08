@@ -166,7 +166,7 @@ export default function HeroBanner({
       <div className="ann-hero__grid">
         <article className="ann-hero__featured" aria-labelledby={titleId}>
           <a className="ann-hero__image-link" href={article.href} aria-label={`Read featured story: ${article.title}`}>
-            <img className="ann-hero__image" src={article.imageUrl} alt={article.imageAlt} loading="eager" />
+            <img className="ann-hero__image" src={article.imageUrl} alt={article.imageAlt} loading="eager" fetchPriority="high" decoding="async" />
           </a>
 
           <div className="ann-hero__content">

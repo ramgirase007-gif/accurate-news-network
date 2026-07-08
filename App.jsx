@@ -1,35 +1,47 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
-import { ErrorBoundary, Footer, Header } from './components';
+import { ErrorBoundary, Footer, Header, LoadingSkeleton, SEO } from './components';
 import { ThemeProvider } from './context';
-import {
-  AboutPage,
-  ArticlePage,
-  CategoryPage,
-  ContactPage,
-  Home,
-  NotFoundPage,
-  PrivacyPolicyPage,
-  SearchPage,
-} from './pages';
+
+const Home = lazy(() => import('./pages/Home'));
+const CategoryPage = lazy(() => import('./pages/Category'));
+const ArticlePage = lazy(() => import('./pages/Article'));
+const SearchPage = lazy(() => import('./pages/Search'));
+const AboutPage = lazy(() => import('./pages/About'));
+const ContactPage = lazy(() => import('./pages/Contact'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicy'));
+const NotFoundPage = lazy(() => import('./pages/NotFound'));
+
+function RouteFallback() {
+  return (
+    <main id="main-content" className="ann-page" aria-busy="true" aria-live="polite">
+      <div className="ann-page__content">
+        <LoadingSkeleton count={3} variant="grid" />
+      </div>
+    </main>
+  );
+}
 
 function AppLayout() {
   return (
     <div className="ann-app">
+      <SEO />
       <Header />
       <ErrorBoundary>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/category" element={<Navigate to="/category/world" replace />} />
-          <Route path="/category/:slug" element={<CategoryPage />} />
-          <Route path="/news/:slug" element={<ArticlePage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        <Suspense fallback={<RouteFallback />}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/category" element={<Navigate to="/category/world" replace />} />
+            <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/news/:slug" element={<ArticlePage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </ErrorBoundary>
       <Footer />
       <style>{styles}</style>

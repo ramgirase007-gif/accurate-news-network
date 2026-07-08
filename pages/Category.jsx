@@ -37,6 +37,7 @@ export default function CategoryPage() {
       eyebrow="Category"
       title={categoryName}
       description={`The latest verified ${categoryName.toLowerCase()} reporting, analysis, and context from Accurate News Network.`}
+      seo={{ path: `/category/${slug}`, keywords: [categoryName, 'news', 'verified reporting'] }}
     >
       <div className="ann-category-page">
         <section className="ann-category-page__main" aria-labelledby="category-news-title">
@@ -51,7 +52,7 @@ export default function CategoryPage() {
             {visibleArticles.map((article) => (
               <article className="ann-category-page__card" key={article.id}>
                 <Link className="ann-category-page__image-link" to={`/news/${article.slug}`} aria-label={`Read ${article.headline}`}>
-                  <img src={article.imageUrl} alt={article.imageAlt} loading="lazy" />
+                  <img src={article.imageUrl} alt={article.imageAlt} loading="lazy" decoding="async" />
                 </Link>
                 <div className="ann-category-page__card-body">
                   <span>{article.category}</span>

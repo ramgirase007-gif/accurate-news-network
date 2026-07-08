@@ -19,3 +19,4 @@ export { default as TrendingTags } from './TrendingTags';
 export { default as LatestVideos } from './LatestVideos';
 export { default as LoadingSkeleton } from './LoadingSkeleton';
 export { default as ErrorBoundary } from './ErrorBoundary';
+export { default as SEO } from './SEO';
