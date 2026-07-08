@@ -17,3 +17,4 @@ export { default as SocialShare } from './SocialShare';
 export { default as EPaperWidget } from './EPaperWidget';
 export { default as TrendingTags } from './TrendingTags';
 export { default as LatestVideos } from './LatestVideos';
+export { default as LoadingSkeleton } from './LoadingSkeleton';

@@ -1,6 +1,8 @@
 import React, { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
+import { LoadingSkeleton } from '../components';
+import { useWordPressSearch } from '../hooks';
 import PageFrame from './PageFrame';
 import { searchArticles } from './newsData';
 
@@ -9,7 +11,9 @@ const formatDate = (value) => new Intl.DateTimeFormat('en-US', { month: 'short',
 export default function SearchPage() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q')?.trim() || '';
-  const results = useMemo(() => searchArticles(query), [query]);
+  const fallbackResults = useMemo(() => searchArticles(query), [query]);
+  const { data: wordpressResults, error: wordpressError, loading: wordpressLoading } = useWordPressSearch(query, { per_page: 12 });
+  const results = wordpressResults.length > 0 ? wordpressResults : fallbackResults;
 
   return (
     <PageFrame
@@ -28,17 +32,19 @@ export default function SearchPage() {
       <section className="ann-search-results" aria-labelledby="search-results-title" aria-live="polite">
         <div className="ann-search-results__header">
           <h2 id="search-results-title">{query ? `Results for “${query}”` : 'Start a search'}</h2>
-          {query ? <p>{results.length} matching stories</p> : <p>Enter a topic, category, reporter, or tag.</p>}
+          {query ? <p>{wordpressError ? 'WordPress search unavailable; showing archived matches.' : `${results.length} matching stories`}</p> : <p>Enter a topic, category, reporter, or tag.</p>}
         </div>
 
-        {query && results.length === 0 ? (
+        {wordpressLoading ? <LoadingSkeleton count={3} /> : null}
+
+        {query && !wordpressLoading && results.length === 0 ? (
           <div className="ann-search-results__empty" role="status">
             <h3>No results found</h3>
             <p>Try a broader topic such as climate, business, technology, health, or sports.</p>
           </div>
         ) : null}
 
-        {results.length > 0 ? (
+        {!wordpressLoading && results.length > 0 ? (
           <div className="ann-search-results__list">
             {results.map((article) => (
               <article className="ann-search-results__item" key={article.id}>

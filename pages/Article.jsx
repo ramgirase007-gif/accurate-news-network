@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-import { Sidebar } from '../components';
+import { LoadingSkeleton, Sidebar } from '../components';
 import PageFrame from './PageFrame';
+import { useRelatedWordPressPosts, useWordPressPostBySlug } from '../hooks';
 import { getArticleBySlug, newsArticles } from './newsData';
 
 const formatArticleDate = (value) =>
@@ -14,10 +15,13 @@ const formatArticleDate = (value) =>
 
 export default function ArticlePage() {
   const { slug = 'climate-resilience-funding' } = useParams();
-  const article = useMemo(() => getArticleBySlug(slug), [slug]);
+  const fallbackArticle = useMemo(() => getArticleBySlug(slug), [slug]);
+  const { data: wordpressArticle, error: wordpressError, loading: wordpressLoading } = useWordPressPostBySlug(slug);
+  const article = wordpressArticle || fallbackArticle;
+  const { data: wordpressRelated } = useRelatedWordPressPosts(wordpressArticle, { per_page: 3 });
   const relatedNews = useMemo(
-    () => newsArticles.filter((story) => story.slug !== article.slug && story.category === article.category).concat(newsArticles.filter((story) => story.slug !== article.slug)).slice(0, 3),
-    [article],
+    () => (wordpressRelated.length > 0 ? wordpressRelated : newsArticles.filter((story) => story.slug !== article.slug && story.category === article.category).concat(newsArticles.filter((story) => story.slug !== article.slug)).slice(0, 3)),
+    [article, wordpressRelated],
   );
   const formattedDate = formatArticleDate(article.publishDate);
   const shareText = encodeURIComponent(article.headline);
@@ -32,6 +36,9 @@ export default function ArticlePage() {
           <li aria-current="page">{article.headline}</li>
         </ol>
       </nav>
+
+      {wordpressLoading ? <LoadingSkeleton count={1} /> : null}
+      {wordpressError ? <p className="ann-article__wp-error" role="status">Showing archived newsroom copy because WordPress is unavailable.</p> : null}
 
       <div className="ann-article-layout">
         <article className="ann-article ann-article--feature" aria-labelledby="page-title">
@@ -49,9 +56,13 @@ export default function ArticlePage() {
           </header>
 
           <div className="ann-article__body">
-            {article.content.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+            {article.contentHtml ? (
+              <div dangerouslySetInnerHTML={{ __html: article.contentHtml }} />
+            ) : (
+              article.content.map((paragraph) => (
+                <p key={paragraph}>{paragraph}</p>
+              ))
+            )}
           </div>
 
           <section className="ann-article__share" aria-labelledby="share-title">
@@ -96,6 +107,7 @@ export default function ArticlePage() {
 }
 
 const styles = `
+  .ann-article__wp-error { color: #92400e; font-weight: 800; margin: 0; }
   .ann-article-breadcrumb ol { align-items: center; color: #64748b; display: flex; flex-wrap: wrap; gap: 0.5rem; list-style: none; margin: 0; padding: 0; }
   .ann-article-breadcrumb li:not(:last-child)::after { content: '/'; margin-left: 0.5rem; }
   .ann-article-breadcrumb a { color: #991b1b; font-weight: 800; text-decoration: none; }
