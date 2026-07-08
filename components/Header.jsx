@@ -11,10 +11,30 @@ const categories = [
 ];
 
 const tickerItems = [
-  'Live: Editors verify fast-moving developments before publication',
-  'Markets: Global indexes steady as investors assess policy signals',
-  'Weather: Emergency officials urge residents to monitor local alerts',
+  'Placeholder: Breaking news updates will appear here as stories are verified',
+  'Live desk: Editors are monitoring trusted sources for urgent developments',
+  'Update queue: Add newsroom alerts to connect the ticker with live coverage',
 ];
+
+const languageOptions = [
+  { label: 'English', value: 'en' },
+  { label: 'Español', value: 'es' },
+  { label: 'Français', value: 'fr' },
+];
+
+const getTodayInfo = () => {
+  const now = new Date();
+
+  return {
+    iso: now.toISOString().slice(0, 10),
+    label: new Intl.DateTimeFormat('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(now),
+  };
+};
 
 function Logo() {
   return (
@@ -51,6 +71,11 @@ export default function Header() {
   const menuId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [todayInfo, setTodayInfo] = useState({ iso: '', label: '' });
+
+  useEffect(() => {
+    setTodayInfo(getTodayInfo());
+  }, []);
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem('ann-theme');
@@ -68,6 +93,17 @@ export default function Header() {
     return () => document.body.classList.remove('ann-header--menu-open');
   }, [isMenuOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
@@ -78,12 +114,23 @@ export default function Header() {
 
       <div className="ann-header__top-bar" aria-label="Network information">
         <div className="ann-header__top-inner">
-          <p>Wednesday Briefing • Independent fact-first reporting</p>
-          <nav aria-label="Utility navigation">
-            <a href="/about">About</a>
-            <a href="/corrections">Corrections</a>
-            <a href="/newsletters">Newsletters</a>
-          </nav>
+          <div className="ann-header__info-group">
+            <time dateTime={todayInfo.iso}>{todayInfo.label || 'Today'}</time>
+            <span className="ann-header__live" aria-label="Live coverage is available">
+              <span aria-hidden="true" /> Live
+            </span>
+          </div>
+
+          <div className="ann-header__utility-group">
+            <label htmlFor="ann-header-language">Language</label>
+            <select id="ann-header-language" name="language" defaultValue="en">
+              {languageOptions.map((language) => (
+                <option key={language.value} value={language.value}>
+                  {language.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -111,7 +158,7 @@ export default function Header() {
             aria-controls={menuId}
             onClick={() => setIsMenuOpen((current) => !current)}
           >
-            <span className="ann-header__sr-only">Toggle navigation menu</span>
+            <span className="ann-header__sr-only">{isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}</span>
             <span aria-hidden="true" />
             <span aria-hidden="true" />
             <span aria-hidden="true" />
@@ -247,10 +294,36 @@ const styles = `
     gap: 1rem;
   }
 
-  .ann-header__top-inner p { margin: 0; }
-  .ann-header__top-inner nav { gap: 1rem; }
-  .ann-header__top-inner a { color: #e2e8f0; text-decoration: none; }
-  .ann-header__top-inner a:hover { color: #ffffff; }
+  .ann-header__info-group,
+  .ann-header__utility-group,
+  .ann-header__live { display: flex; align-items: center; }
+
+  .ann-header__info-group { gap: 1rem; font-weight: 750; }
+  .ann-header__utility-group { gap: 0.55rem; }
+  .ann-header__utility-group label { color: #cbd5e1; font-weight: 750; }
+  .ann-header__utility-group select {
+    border: 1px solid rgba(255, 255, 255, 0.26);
+    border-radius: 999px;
+    padding: 0.2rem 1.7rem 0.2rem 0.65rem;
+    color: #ffffff;
+    background: #1e293b;
+    font: inherit;
+  }
+
+  .ann-header__live { gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; }
+  .ann-header__live span {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: #22c55e;
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.8);
+    animation: ann-live-pulse 1.8s infinite;
+  }
+
+  @keyframes ann-live-pulse {
+    70% { box-shadow: 0 0 0 0.5rem rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  }
 
   .ann-header__main { background: var(--ann-header-bg); }
 
@@ -366,19 +439,19 @@ const styles = `
     border: 0;
   }
 
-  .ann-header :where(a, button, input):focus-visible {
+  .ann-header :where(a, button, input, select):focus-visible {
     outline: 3px solid var(--ann-header-focus);
     outline-offset: 3px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ann-header__ticker-track { animation: none; }
+    .ann-header__ticker-track,
+    .ann-header__live span { animation: none; }
     .ann-header__skip-link { transition: none; }
   }
 
   @media (max-width: 840px) {
-    .ann-header__top-inner { justify-content: center; }
-    .ann-header__top-inner nav,
+    .ann-header__top-inner { flex-wrap: wrap; justify-content: space-between; padding: 0.35rem 0; }
     .ann-header__desktop-actions { display: none; }
 
     .ann-header__menu-toggle {
