@@ -3,8 +3,6 @@ import React from 'react';
 import {
   BreakingNewsTicker,
   CategorySection,
-  Footer,
-  Header,
   HeroBanner,
   Sidebar,
   TopStories,
@@ -43,8 +41,6 @@ const categorySections = [
 export default function Home() {
   return (
     <div className="ann-home">
-      <Header />
-
       <BreakingNewsTicker news={breakingNews} />
 
       <main id="main-content" className="ann-home__main">
@@ -69,7 +65,6 @@ export default function Home() {
         </section>
       </main>
 
-      <Footer />
 
       <style>{styles}</style>
     </div>
