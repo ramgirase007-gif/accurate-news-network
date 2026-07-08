@@ -1,5 +1,7 @@
 import React, { useEffect, useId, useState } from 'react';
 
+import { useTheme } from '../hooks';
+
 const categories = [
   { label: 'Top Stories', href: '#top-stories' },
   { label: 'World', href: '#world' },
@@ -70,23 +72,13 @@ function SearchForm({ idPrefix = 'desktop' }) {
 export default function Header() {
   const menuId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { isDarkMode, toggleTheme } = useTheme();
   const [todayInfo, setTodayInfo] = useState({ iso: '', label: '' });
 
   useEffect(() => {
     setTodayInfo(getTodayInfo());
   }, []);
 
-  useEffect(() => {
-    const storedTheme = window.localStorage.getItem('ann-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setIsDarkMode(storedTheme ? storedTheme === 'dark' : prefersDark);
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.dataset.annTheme = isDarkMode ? 'dark' : 'light';
-    window.localStorage.setItem('ann-theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
 
   useEffect(() => {
     document.body.classList.toggle('ann-header--menu-open', isMenuOpen);
@@ -144,7 +136,7 @@ export default function Header() {
               className="ann-header__theme-toggle"
               type="button"
               aria-pressed={isDarkMode}
-              onClick={() => setIsDarkMode((current) => !current)}
+              onClick={toggleTheme}
             >
               <span aria-hidden="true">{isDarkMode ? '☀' : '☾'}</span>
               <span>{isDarkMode ? 'Light' : 'Dark'} mode</span>
@@ -194,7 +186,7 @@ export default function Header() {
               className="ann-header__theme-toggle ann-header__theme-toggle--mobile"
               type="button"
               aria-pressed={isDarkMode}
-              onClick={() => setIsDarkMode((current) => !current)}
+              onClick={toggleTheme}
             >
               <span aria-hidden="true">{isDarkMode ? '☀' : '☾'}</span>
               <span>{isDarkMode ? 'Light' : 'Dark'} mode</span>
