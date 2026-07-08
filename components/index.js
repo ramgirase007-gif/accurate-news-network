@@ -7,3 +7,4 @@ export { default as BreakingNewsTicker } from './BreakingNewsTicker';
 export { default as HeroBanner } from './HeroBanner';
 export { default as TopStories } from './TopStories';
 export { default as CategorySection } from './CategorySection';
+export { default as Sidebar } from './Sidebar';
