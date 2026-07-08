@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 const networks = [
   ['whatsapp', 'WhatsApp', (u, t) => `https://wa.me/?text=${encodeURIComponent(`${t} ${u}`)}`],

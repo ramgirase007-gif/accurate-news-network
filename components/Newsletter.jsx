@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react';
+import { useId, useState } from 'react';
 
 export default function Newsletter({ title = 'Get the Daily Brief', description = 'Fact-checked headlines delivered to your inbox.', action = '#newsletter', className = '' }) {
   const inputId = useId();

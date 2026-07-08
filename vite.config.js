@@ -9,9 +9,11 @@ export default defineConfig({
     assetsInlineLimit: 4096,
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          router: ['react-router-dom'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (id.includes('react-router-dom')) return 'router';
+          if (id.includes('react') || id.includes('react-dom')) return 'react';
+          return 'vendor';
         },
       },
     },

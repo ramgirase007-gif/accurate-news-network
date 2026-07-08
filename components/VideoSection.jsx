@@ -1,4 +1,4 @@
-import React, { useId, useMemo } from 'react';
+import { useId, useMemo } from 'react';
 import { VideoCard, defaultVideos, normalizeVideo, styles as videoCardStyles } from './LatestVideos';
 
 export default function VideoSection({ title = 'Video', videos = defaultVideos, className = '' }) {

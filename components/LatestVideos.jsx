@@ -1,4 +1,4 @@
-import React, { useId, useMemo } from 'react';
+import { useId, useMemo } from 'react';
 
 export const defaultVideos = [
   { id: 'video-1', title: 'Daily briefing: top stories in three minutes', duration: '3:12', href: '#daily-briefing', thumbnail: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80' },

@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { THEME_STORAGE_KEY, THEMES } from '../utils/constants';
 import { isBrowser } from '../utils/helpers';

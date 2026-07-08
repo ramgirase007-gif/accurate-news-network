@@ -1,4 +1,3 @@
-import React from 'react';
 
 const defaultTags = ['Breaking', 'Politics', 'Weather', 'Business', 'Health', 'Technology', 'Sports', 'World'];
 

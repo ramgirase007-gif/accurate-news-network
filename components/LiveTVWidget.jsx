@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function LiveTVWidget({ title = 'ANN Live TV', description = 'Live TV player placeholder', streamHref = '#live-tv', className = '' }) {
   return (

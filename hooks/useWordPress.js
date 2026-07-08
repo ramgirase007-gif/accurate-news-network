@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/use-memo */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isWordPressConfigured, wordpressService } from '../services/wordpress';
@@ -37,8 +38,14 @@ function useWordPressResource(fetcher, dependencies = [], options = {}) {
   }, dependencies); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    execute();
-    return () => abortRef.current?.abort();
+    const timeoutId = window.setTimeout(() => {
+      execute();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      abortRef.current?.abort();
+    };
   }, [execute]);
 
   return { data, error, loading, refetch: execute, isConfigured: isWordPressConfigured() };

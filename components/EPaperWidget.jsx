@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function EPaperWidget({ editionTitle = 'Today\'s E-Paper', date = 'July 8, 2026', pages = 24, coverImage, viewHref = '#e-paper', className = '' }) {
   return (

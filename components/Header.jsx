@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 
 import { useTheme } from '../hooks';
 
@@ -73,12 +73,7 @@ export default function Header() {
   const menuId = useId();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
-  const [todayInfo, setTodayInfo] = useState({ iso: '', label: '' });
-
-  useEffect(() => {
-    setTodayInfo(getTodayInfo());
-  }, []);
-
+  const [todayInfo] = useState(getTodayInfo);
 
   useEffect(() => {
     document.body.classList.toggle('ann-header--menu-open', isMenuOpen);

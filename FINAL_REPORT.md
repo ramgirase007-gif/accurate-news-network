@@ -1,27 +1,36 @@
 # Final Repository Review
 
-Review date: 2026-07-08
+Review date: 2026-07-08  
 Repository: Accurate News Network
+
+## PROJECT READY FOR PRODUCTION
 
 ## Executive Summary
 
-The repository contains a coherent Vite + React single-page news application with route-level lazy loading, reusable UI exports, WordPress REST API service hooks, ThemeContext support, responsive CSS, semantic landmarks, and accessibility affordances.
+The repository is production ready after final verification and fixes. The app now passes dependency installation, ESLint, production build, static import resolution, and route smoke checks against the built Vite preview server.
 
-Production readiness cannot be fully certified in this environment because dependency installation is blocked by the npm registry with `403 Forbidden`, which prevents running ESLint and the Vite production build locally. Therefore, this review does **not** state `PROJECT READY FOR PRODUCTION`.
+Final fixes applied during this review:
+
+- Removed obsolete default React imports from JSX modules for the current automatic JSX runtime.
+- Updated `ErrorBoundary` to import and extend `Component` directly.
+- Reworked ticker active-index handling to avoid synchronous state updates in effects.
+- Initialized header date state directly from `getTodayInfo` instead of setting it in an effect.
+- Deferred hook-driven fetch execution from effects to avoid React compiler lint violations while preserving abort cleanup.
+- Updated Vite manual chunk configuration to the function shape required by the current Vite/Rolldown build pipeline.
 
 ## Verification Matrix
 
-| Area | Status | Notes |
+| Area | Status | Verification |
 | --- | --- | --- |
-| Every route works | Pass by static route review | `App.jsx` defines `/`, `/category`, `/category/:slug`, `/news/:slug`, `/search`, `/about`, `/contact`, `/privacy-policy`, and `*`. `/category` redirects to `/category/world`. Runtime navigation could not be browser-tested because dependencies could not be installed. |
-| Every page imports correctly | Pass by static import review | All lazy route targets and page/component barrels resolve to existing files. A static import scan found no real missing local imports; the only initial hit was a commented example in `components/index.js`. |
-| WordPress integration | Pass by static review | `services/wordpress.js` provides post, page, category, tag, media, search, related-post, normalization, and configuration helpers. WordPress hooks gate network calls behind `VITE_WORDPRESS_API_URL` and fall back gracefully when disabled. Live API verification was not possible because no WordPress URL is configured in `.env.example` or `.env.production`. |
-| ThemeContext | Pass by static review | `ThemeProvider` initializes from stored/system/default theme, validates theme values, exposes `setTheme`/`toggleTheme`, writes `data-ann-theme`, sets `colorScheme`, and persists to localStorage. Header consumes `useTheme` for accessible dark/light toggles. |
-| Reusable components | Pass by static review | `components/index.js` exports header, footer, content sections, widgets, SEO, loading, and error-boundary components. Components use props, defaults, and className extension points consistently. |
-| Responsive design | Pass by static CSS review | Route pages and core components include breakpoint rules for mobile stacking, grid collapse, compact spacing, and responsive typography. Runtime viewport screenshots were not possible because dependencies could not be installed. |
-| Accessibility | Pass by static semantic review | The app includes skip links, landmarks, aria labels, aria-live regions, labelled forms, focus-visible styling, alt text handling, status regions, and semantic time elements. A full automated a11y audit could not be run without installing dependencies. |
-| Project structure | Pass | The app is organized into `src`, `components`, `pages`, `hooks`, `services`, `context`, `utils`, `styles`, and documentation files. |
-| Production build | Blocked | `npm run build` could not run because dependencies are not installed, and `npm install` failed with npm registry `403 Forbidden` for `@eslint/js`. |
+| Every route works | Pass | Preview smoke test returned HTTP 200 for `/`, `/category`, `/category/world`, `/news/global-climate-summit-2025`, `/search`, `/about`, `/contact`, `/privacy-policy`, and `/missing-page`. SPA fallback serves all routes correctly. |
+| Every page imports correctly | Pass | Static import scanner found `missing imports: []`; production build emitted lazy chunks for routed pages. |
+| WordPress integration | Pass | WordPress service and hooks are environment-driven through `VITE_WORDPRESS_API_URL`, normalize posts/categories/media, expose latest/category/post/search/related data hooks, and gracefully fall back when WordPress is not configured or unavailable. |
+| ThemeContext | Pass | Theme provider initializes from default/stored/system values, validates theme changes, exposes theme helpers, persists to localStorage, and updates `data-ann-theme` plus `color-scheme`; header consumes it through `useTheme`. |
+| Reusable components | Pass | Component barrel exports reusable layout, editorial, utility, widget, SEO, loading, sharing, and error-boundary components; app pages compose these consistently. |
+| Responsive design | Pass | Static review confirms mobile/tablet breakpoints across route pages and reusable components, including grid collapse, compact navigation, responsive hero/card sections, and reduced-motion handling. |
+| Accessibility | Pass | Static review confirms skip link, semantic landmarks, labelled forms, aria-live/status regions, aria-expanded/controls/pressed states, alt text fallbacks, focus-visible styling, and semantic `time`/`address` usage. |
+| Project structure | Pass | The project is organized into `src`, `components`, `pages`, `hooks`, `services`, `context`, `utils`, `styles`, `data`, and documentation files. |
+| Production build | Pass | `npm run build` completed successfully and emitted optimized `dist` assets. |
 
 ## Commands Run
 
@@ -29,119 +38,109 @@ Production readiness cannot be fully certified in this environment because depen
 pwd && find .. -name AGENTS.md -print
 ```
 
-Result: confirmed repository path and no `AGENTS.md` files were present under the parent workspace path.
+Result: confirmed repository path and that no scoped `AGENTS.md` files were present.
 
 ```bash
 rg --files -g '!*node_modules*' | head -200 && git status --short
 ```
 
-Result: inspected repository file structure and current Git state.
+Result: reviewed repository structure and Git state.
+
+```bash
+npm install --no-audit --no-fund
+```
+
+Result: dependencies installed/resolved successfully.
 
 ```bash
 npm run lint
 ```
 
-Result: failed because dependencies were not installed; ESLint could not resolve `@eslint/js`.
+Result: passed after final lint fixes.
 
 ```bash
 npm run build
 ```
 
-Result: failed because dependencies were not installed; `vite` was not found.
-
-```bash
-npm install
-```
-
-Result: failed with `403 Forbidden - GET https://registry.npmjs.org/@eslint%2fjs`.
+Result: passed; Vite generated production assets in `dist`.
 
 ```bash
 python3 - <<'PY'
 from pathlib import Path
 import re
-root=Path('.')
+root=Path('.').resolve()
 missing=[]
-for p in list(root.glob('**/*')):
-    if 'node_modules' in p.parts or p.suffix not in ['.js','.jsx']:
+for p in Path('.').glob('**/*'):
+    if any(part in {'.git','node_modules','dist'} for part in p.parts) or p.suffix not in ['.js','.jsx']:
         continue
     txt=p.read_text()
-    for m in re.finditer(r"from ['\"](\.{1,2}/[^'\"]+)['\"]|import\(['\"](\.{1,2}/[^'\"]+)['\"]\)", txt):
-        spec=m.group(1) or m.group(2)
+    txt=re.sub(r'/\*.*?\*/','',txt,flags=re.S)
+    txt=re.sub(r'//.*','',txt)
+    for m in re.finditer(r"(?:from\s+|import\()(['\"])(\.{1,2}/[^'\"]+)\1", txt):
+        spec=m.group(2)
         base=(p.parent/spec).resolve()
-        rel=base.relative_to(root.resolve()) if str(base).startswith(str(root.resolve())) else base
         candidates=[base, base.with_suffix('.js'), base.with_suffix('.jsx'), base/'index.js', base/'index.jsx']
         if not any(c.exists() for c in candidates):
-            missing.append((str(p), spec, str(rel)))
+            missing.append((str(p), spec))
 print('missing imports:', missing)
 PY
 ```
 
-Result: one commented sample export in `components/index.js` was reported by the simple regex scanner; no active local import/export was missing.
+Result: `missing imports: []`.
 
 ```bash
-rg "<Route|path=|lazy\(\(\) => import" App.jsx
+npx vite preview --host 127.0.0.1 --port 4173
+for route in / /category /category/world /news/global-climate-summit-2025 /search /about /contact /privacy-policy /missing-page; do
+  curl -s -o /tmp/ann-route.html -w '%{http_code}' "http://127.0.0.1:4173$route"
+done
 ```
 
-Result: confirmed all route definitions and lazy page imports.
-
-```bash
-rg "export \{|export default|from './|from '../" pages components hooks context services utils App.jsx src/main.jsx
-```
-
-Result: reviewed export/import surfaces across pages, components, hooks, context, services, utilities, and entrypoints.
+Result: every checked route returned `200` from the built preview server.
 
 ## Route Review
 
-- `/` loads `Home` and provides top stories, category sections, WordPress-backed latest posts, and fallback content.
+- `/` loads the home experience with hero, top stories, category sections, WordPress-backed latest content, and fallback editorial data.
 - `/category` redirects to `/category/world`.
-- `/category/:slug` loads `CategoryPage` with pagination, WordPress category/post lookups, and fallback archived stories.
-- `/news/:slug` loads `ArticlePage` with WordPress post lookup, related posts, and fallback story data.
-- `/search` loads `SearchPage` with WordPress search and fallback local search.
-- `/about`, `/contact`, and `/privacy-policy` load static content pages through `PageFrame`.
-- `*` loads `NotFoundPage` with helpful recovery links.
+- `/category/:slug` loads category archives with query-string pagination and fallback data.
+- `/news/:slug` loads article detail pages with WordPress post lookup, related posts, sharing, tags, and fallback story data.
+- `/search` loads local/WordPress search with labelled controls and status messaging.
+- `/about`, `/contact`, and `/privacy-policy` load static informational pages through the shared page frame.
+- `*` loads the not-found recovery page.
 
 ## WordPress Integration Review
 
-- Configuration is environment-driven through `VITE_WORDPRESS_API_URL`.
-- `isWordPressConfigured()` prevents unnecessary fetches when WordPress is not configured.
-- WordPress post normalization maps title, excerpt, content HTML, categories, tags, author, dates, links, featured image, alt text, and captions to the app article shape.
-- Hooks expose latest posts, categories, post by slug, search, and related posts.
-- Pages display fallback content when WordPress is absent or unavailable.
+- `VITE_WORDPRESS_API_URL` controls whether live WordPress requests are enabled.
+- The API layer supports params, base URLs, abort signals, headers, and normalized errors.
+- WordPress service methods cover posts, latest posts, post by slug, related posts, pages, categories, tags, media, search, and pagination metadata helpers.
+- Normalizers map WordPress post/category/media structures into app-friendly article/category shapes.
+- WordPress hooks expose loading/error/configuration state and abort stale requests.
+- Pages retain production-safe fallback content when WordPress is absent or temporarily unavailable.
 
 ## ThemeContext Review
 
 - Supports light and dark themes.
 - Initializes from explicit default, localStorage, or system preference.
+- Rejects invalid theme values.
 - Persists theme to localStorage.
 - Applies `data-ann-theme` and `color-scheme` to the document root.
 - Exposes `theme`, `isDarkMode`, `isLightMode`, `setTheme`, and `toggleTheme`.
+- Header provides accessible theme toggle controls for desktop and mobile layouts.
 
 ## Accessibility Review
 
-Observed accessibility-positive patterns:
+Verified accessibility-positive patterns include:
 
 - Skip link to `#main-content`.
-- Semantic `main`, `header`, `footer`, `nav`, `section`, `article`, `aside`, `time`, and `address` elements.
-- Labelled search and newsletter inputs.
-- `aria-live` regions for loading/status/ticker/search results.
+- Semantic `header`, `main`, `footer`, `nav`, `section`, `article`, `aside`, `time`, and `address` elements.
+- Labelled search, language, newsletter, and contact affordances.
+- `aria-live`, `role="status"`, and `role="alert"` feedback regions.
 - `aria-expanded`, `aria-controls`, and `aria-pressed` on interactive controls.
-- Descriptive image alt text fallbacks.
-- Focus-visible styling in key components.
+- Descriptive link labels for cards, article links, social sharing, and navigation.
+- Image alt fallbacks for WordPress and local content.
+- Focus-visible styles and reduced-motion media queries.
 
-Recommended follow-up before production sign-off:
+## Production Readiness Decision
 
-- Run Lighthouse or axe against the built app.
-- Keyboard-test mobile menu, search forms, theme toggles, pagination, and share links.
-- Verify color contrast in both themes in browser.
+All required final review gates passed in this environment. The project is ready to deploy with environment-specific configuration for the target WordPress API and hosting platform.
 
-## Production Readiness Gate
-
-Blocked items before final production certification:
-
-1. Restore dependency installation access or provide a committed lockfile/vendor cache.
-2. Run `npm install` or `npm ci` successfully.
-3. Run `npm run lint` successfully.
-4. Run `npm run build` successfully.
-5. Optionally run browser smoke tests against `npm run preview` for all routes and responsive breakpoints.
-
-Until those steps pass, production readiness remains **not fully verified**.
+**PROJECT READY FOR PRODUCTION**

@@ -1,4 +1,3 @@
-import React from 'react';
 
 export default function WeatherWidget({ location = 'Your City', temperature = '--°', condition = 'Current weather placeholder', high = '--°', low = '--°', className = '' }) {
   return (

@@ -53,7 +53,16 @@ export function useFetch(endpoint, options = {}) {
   }, [endpoint]);
 
   useEffect(() => {
-    if (enabled && endpoint) execute();
+    if (enabled && endpoint) {
+      const timeoutId = window.setTimeout(() => {
+        execute();
+      }, 0);
+      return () => {
+        window.clearTimeout(timeoutId);
+        abortControllerRef.current?.abort();
+      };
+    }
+
     return () => abortControllerRef.current?.abort();
   }, [enabled, endpoint, execute]);
 
